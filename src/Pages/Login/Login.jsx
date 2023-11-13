@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   loadCaptchaEnginge,
   LoadCanvasTemplate,
@@ -8,12 +8,13 @@ import {
 import { AuthContext } from "../../Providers/AuthProvider";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
+import Swal from "sweetalert2";
 
 const Login = () => {
   // =================================================================
   const { signIn } = useContext(AuthContext);
   // =================================================================
-  const captchaRef = useRef(null);
+  //   const captchaRef = useRef(null);
   const [disabled, setDisabled] = useState(true);
   useEffect(() => {
     loadCaptchaEnginge(6);
@@ -29,11 +30,12 @@ const Login = () => {
     signIn(email, password).then((result) => {
       const user = result.user;
       console.log(user);
+      Swal.fire("Login Successful!");
     });
   };
   // =================================================================
-  const handleValidationCaptcha = () => {
-    const user_captcha_value = captchaRef.current.value;
+  const handleValidationCaptcha = (e) => {
+    const user_captcha_value = e.target.value;
     if (validateCaptcha(user_captcha_value)) {
       setDisabled(false);
     }
@@ -91,19 +93,16 @@ const Login = () => {
                   <LoadCanvasTemplate />
                 </label>
                 <input
-                  ref={captchaRef}
+                  onBlur={handleValidationCaptcha}
                   type="text"
                   placeholder="type the ReCaptcha"
                   name="captcha"
                   className="input input-bordered"
                   required
                 />
-                <button
-                  onClick={handleValidationCaptcha}
-                  className="btn btn-outline btn-secondary btn-xs"
-                >
+                {/* <button className="btn btn-outline btn-secondary btn-xs">
                   Validate
-                </button>
+                </button> */}
               </div>
               <div className="form-control mt-6">
                 <input
