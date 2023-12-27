@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import Cover from "../../Shared/Cover/Cover";
 import MenuItem from "../../Shared/MenuItem/MenuItem";
 
-const MenuCategory = ({ item, title, img }) => {
+const MenuCategory = ({ item, title, img, _id }) => {
   return (
     <div className="p-8">
       {title && <Cover img={img} title={title}></Cover>}

@@ -2,23 +2,48 @@ import { useContext } from "react";
 import { Helmet } from "react-helmet";
 import { useForm } from "react-hook-form";
 import { AuthContext } from "../../Providers/AuthProvider";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import useAxiosPublic from "../../Hooks/useAxiosPublic";
+import SocialLogin from "../../Components/SocialLogin/SocialLogin";
 
 const SignUp = () => {
   // =================================================================
+  const axiosPublic = useAxiosPublic();
+  const { createUser, updateUserProfile } = useContext(AuthContext);
   const {
     register,
     handleSubmit,
     watch,
+    reset,
     formState: { errors },
   } = useForm();
-
-  const { createUser } = useContext(AuthContext);
+  const navigate = useNavigate();
+  // =================================================================
   const onSubmit = (data) => {
     console.log(data);
     createUser(data.email, data.password).then((result) => {
       const loggedUser = result.user;
       console.log(loggedUser);
+      updateUserProfile(data.name, data.photoURL)
+        .then(() => {
+          console.log("user profile updated");
+          // create user entry in the database
+          const userInfo = {
+            name: data.name,
+            email: data.email,
+          };
+          axiosPublic.post("/users", userInfo).then((res) => {
+            if (res.data.insertedId) {
+              reset();
+              Swal.fire("user created Successful!");
+              navigate("/");
+            }
+          });
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     });
   };
   //   console.log(watch("example"));
@@ -54,6 +79,21 @@ const SignUp = () => {
                 />
                 {errors.name && (
                   <span className="text-red-400">name field is required</span>
+                )}
+              </div>
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Photo Url</span>
+                </label>
+                <input
+                  type="text"
+                  {...register("photoURL", { required: true })}
+                  placeholder="photo URL"
+                  className="input input-bordered"
+                  required
+                />
+                {errors.photoURL && (
+                  <span className="text-red-400">photoURL is required</span>
                 )}
               </div>
               <div className="form-control">
@@ -101,7 +141,8 @@ const SignUp = () => {
                 />
               </div>
             </form>
-            <p>
+            <SocialLogin></SocialLogin>
+            <p className="px-8">
               <small>
                 <Link to="/login"> Already have an account? Login Here...</Link>
               </small>
